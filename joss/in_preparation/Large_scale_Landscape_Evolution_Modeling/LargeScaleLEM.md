@@ -11,7 +11,7 @@ bibliography: papers.bib
 
 ## Introduction
 
-Earth's surface is shaped by processes that mediate the interplay between climate, tectonics and life. Understanding the interplay among Earth's surface processes  relies on geo-spatial software tools that can process topographical datasets over large spatial and temporal domains. Despite the large potential of geo-spatial software to understand Earth surface response to environmental change, applications of current generation LEMs are often hampered by limited model efficiency.
+Earth's surface is shaped by processes that mediate the interplay between climate, tectonics and life. Understanding the interplay among Earth's surface processes  relies on geo-spatial software tools that can process topographical datasets over large spatial and temporal domains. Despite the large potential of geo-spatial software to understand Earth surface response to environmental change, applications of current generation LEMs are often hampered by limited model efficiency. 
 
 ## The Landlab toolkit and terrainbento package
 
