@@ -59,7 +59,11 @@ from .stream_power import (
 from .taylor_nonlinear_hillslope_flux import TaylorNonLinearDiffuser
 from .tectonics import ListricKinematicExtender
 from .tidal_flow import TidalFlowCalculator
-from .transport_length_diffusion import TransportLengthHillslopeDiffuser
+from .transport_length_diffusion import (
+    Tr_L_diff,
+    TransportLengthHillslopeDiffuser,
+    TransportLengthHillslopeDiffuser_v2,
+)
 from .uniform_precip import PrecipitationDistribution
 from .vegetation_dynamics import Vegetation
 from .weathering import ExponentialWeatherer, ExponentialWeathererIntegrated
@@ -131,6 +135,8 @@ COMPONENTS = [
     TaylorNonLinearDiffuser,
     TidalFlowCalculator,
     TransportLengthHillslopeDiffuser,
+    TransportLengthHillslopeDiffuser_v2,
+    Tr_L_diff,
     TrickleDownProfiler,
     VegCA,
     Vegetation,
