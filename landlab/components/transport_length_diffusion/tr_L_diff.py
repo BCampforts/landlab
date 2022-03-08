@@ -25,6 +25,18 @@ class Tr_L_diff(Component):
     Parameters
     ----------
 
+    grid : ModelGrid
+        Landlab ModelGrid object
+    erodibility: float
+        Erodibility coefficient [L/T]
+    slope_crit: float (default=1.)
+        Critical slope [L/L]
+    depositOnBoundaries: boolean (default=False)
+
+    depthDependent: boolean (default=False)
+
+    H_star=1.0 : float (default=1.)
+
 
     Examples
     --------
