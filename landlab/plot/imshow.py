@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 """Methods to plot data defined on Landlab grids.
+
 Plotting functions
 ++++++++++++++++++
 .. autosummary::
@@ -29,12 +30,7 @@ except ImportError:
 
 
 def imshow_grid_at_node(grid, values, **kwds):
-    """imshow_grid_at_node(grid, values, plot_name=None, var_name=None,
-    var_units=None, grid_units=None, symmetric_cbar=False, cmap='pink',
-    limits=(values.min(), values.max()), vmin=values.min(), vmax=values.max(),
-    allow_colorbar=True, norm=[linear], shrink=1., color_for_closed='black',
-    color_for_background=None, show_elements=False, output=None)
-    Prepare a map view of data over all nodes in the grid.
+    """Prepare a map view of data over all nodes in the grid.
     Data is plotted as cells shaded with the value at the node at its center.
     Outer edges of perimeter cells are extrapolated. Closed elements are
     colored uniformly (default black, overridden with kwd 'color_for_closed');
@@ -50,6 +46,7 @@ def imshow_grid_at_node(grid, values, **kwds):
     Node coordinates are printed when a mouse button is pressed on a cell in
     the plot.
     This function happily works with both regular and irregular grids.
+
     Parameters
     ----------
     grid : ModelGrid
@@ -130,8 +127,7 @@ def imshow_grid_at_node(grid, values, **kwds):
 
 
 def imshowhs_grid_at_node(grid, values, **kwds):
-    """imshowhs_grid_at_node(grid, values, **kwds)
-    Prepare a map view of data over all nodes in the grid using a hillshade
+    """Prepare a map view of data over all nodes in the grid using a hillshade
     topography map in the background.
     Data is plotted as cells shaded with the value at the node at its center.
     Outer edges of perimeter cells are extrapolated. Closed elements are
@@ -149,6 +145,7 @@ def imshowhs_grid_at_node(grid, values, **kwds):
     the plot.
     For now, this function only works with regular grids.
     Developed by: Benjamin Campforts
+
     Parameters
     ----------
     grid : ModelGrid
@@ -267,6 +264,11 @@ def imshowhs_grid_at_node(grid, values, **kwds):
         colorbar font weight. The default is 'bold'.
     add_label_bbox : bool, optional
         Add a bbox surrounding the colorbar label. The default is False.
+    y_label_offSet_var_1 : float, optional
+        Offset of ylabel on colorbar of first variable in plot with two overlaying plots. The default is 3.0.
+    y_label_offSet_var_2 : float, optional
+        Offset of ylabel on colorbar of first variable in plot with two overlaying plots. The default is -1.25.
+
     Returns
     -------
     ax : figure ax
@@ -304,15 +306,11 @@ def imshowhs_grid_at_node(grid, values, **kwds):
 
 
 def imshow_grid_at_cell(grid, values, **kwds):
-    """imshow_grid_at_cell(grid, values, plot_name=None, var_name=None,
-    var_units=None, grid_units=None, symmetric_cbar=False, cmap='pink',
-    limits=(values.min(), values.max()), vmin=values.min(), vmax=values.max(),
-    allow_colorbar=True, colorbar_label=None, norm=[linear], shrink=1.,
-    color_for_closed='black', color_for_background=None, show_elements=False,
-    output=None)
+    """
     Map view of grid data over all grid cells.
     Prepares a map view of data over all cells in the grid.
     Method can take any of the same ``**kwds`` as :func:`imshow_grid_at_node`.
+
     Parameters
     ----------
     grid : ModelGrid
@@ -1118,12 +1116,7 @@ def _imshowhs_grid_values(
 
 
 def imshow_grid(grid, values, **kwds):
-    """imshow_grid(grid, values, plot_name=None, var_name=None, var_units=None,
-    grid_units=None, symmetric_cbar=False, cmap='pink', limits=(values.min(),
-    values.max()), vmin=values.min(), vmax=values.max(), allow_colorbar=True,
-    colorbar_label=None, norm=[linear], shrink=1., color_for_closed='black',
-    show_elements=False, color_for_background=None)
-    Prepare a map view of data over all nodes or cells in the grid.
+    """Prepare a map view of data over all nodes or cells in the grid.
     Data is plotted as colored cells. If at='node', the surrounding cell is
     shaded with the value at the node at its center. If at='cell', the cell
     is shaded with its own value. Outer edges of perimeter cells are
@@ -1139,6 +1132,7 @@ def imshow_grid(grid, values, **kwds):
     Use matplotlib functions like xlim, ylim to modify your plot after calling
     :func:`imshow_grid`, as desired.
     This function happily works with both regular and irregular grids.
+
     Parameters
     ----------
     grid : ModelGrid
@@ -1212,8 +1206,7 @@ def imshow_grid(grid, values, **kwds):
 
 
 def imshowhs_grid(grid, values, **kwds):
-    """imshowhs_grid(grid, values, **kwds)
-    Prepare a map view of data over all nodes in the grid using a hillshade
+    """Prepare a map view of data over all nodes in the grid using a hillshade
     topography map in the background.
     Data is plotted as cells shaded with the value at the node at its center.
     Outer edges of perimeter cells are extrapolated. Closed elements are
@@ -1230,6 +1223,7 @@ def imshowhs_grid(grid, values, **kwds):
     Node coordinates are printed when a mouse button is pressed on a cell in
     the plot.
     For now, this function only works with regular grids.
+
     Parameters
     ----------
     grid : ModelGrid
@@ -1348,6 +1342,11 @@ def imshowhs_grid(grid, values, **kwds):
         colorbar font weight. The default is 'bold'.
     add_label_bbox : bool, optional
         Add a bbox surrounding the colorbar label. The default is False.
+    y_label_offSet_var_1 : float, optional
+        Offset of ylabel on colorbar of first variable in plot with two overlaying plots. The default is 3.0.
+    y_label_offSet_var_2 : float, optional
+        Offset of ylabel on colorbar of first variable in plot with two overlaying plots. The default is -1.25.
+
     Returns
     -------
     ax : figure ax
