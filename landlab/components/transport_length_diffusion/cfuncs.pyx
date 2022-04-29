@@ -23,8 +23,8 @@ cpdef non_local_Depo(DTYPE_FLOAT_t dx,
     cdef int node
     
     for node in rev_stack:
-        depo[node] = qs_out[node]/L[node]        
-        qs_out[r[node]] = qs_out[node]+ (ero[node] -depo[node])*dx
+        depo[node] = qs_out[node]/L[node]     
+        qs_out[r[node]] += qs_out[node]+ (ero[node] -depo[node])*dx
                 
    
    

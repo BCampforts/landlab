@@ -10,6 +10,8 @@ import numpy as np
 
 from landlab import Component
 
+from landlab.grid.nodestatus import NodeStatus
+
 from .cfuncs import non_local_Depo
 
 
@@ -96,7 +98,7 @@ class Tr_L_diff(Component):
             "optional": True,
             "units": "m",
             "mapping": "node",
-            "doc": "Land surface topographic elevation",
+            "doc": "Bedrock elevation",
         },
         "soil__depth": {
             "dtype": float,
@@ -104,7 +106,16 @@ class Tr_L_diff(Component):
             "optional": True,
             "units": "m",
             "mapping": "node",
-            "doc": "Land surface topographic elevation",
+            "doc": "Sediment thickness",
+        },
+        
+        "sediment_flux_out": {
+            "dtype": float,
+            "intent": "out",
+            "optional": False,
+            "units": "m",
+            "mapping": "node",
+            "doc": "Sediment flux at boundary nodes in m3",
         },
     }
 
@@ -116,6 +127,7 @@ class Tr_L_diff(Component):
         depositOnBoundaries=False,
         depthDependent=False,
         H_star=1.0,
+        transportLengthCoefficient=None
     ):
 
         """Initialize Diffuser.
@@ -133,6 +145,8 @@ class Tr_L_diff(Component):
         depthDependent: boolean (default=False)
 
         H_star=1.0 : float (default=1.)
+        
+        transportLengthCoefficient [default = dx]
 
         """
         self._depthDependent = depthDependent
@@ -158,7 +172,13 @@ class Tr_L_diff(Component):
 
         self._k = erodibility
         self._slope_crit = slope_crit
-
+        if transportLengthCoefficient is None:
+            self._transportLengthCoefficient = grid.dx
+        else:
+            if transportLengthCoefficient < grid.dx: 
+                raise ValueError("The value for transportLengthCoefficient must be larger than the grid resolution")
+            else:
+                self._transportLengthCoefficient = transportLengthCoefficient
         # Create fields:
         # Elevation
         self._el = self._grid.at_node["topographic__elevation"]
@@ -175,6 +195,8 @@ class Tr_L_diff(Component):
 
         self.initialize_output_fields()
         self._depositOnBoundaries = depositOnBoundaries
+        
+        self._flux  = self._grid.at_node["sediment_flux_out"]
 
     def tldiffusion(self, dt):
         """Calculate hillslope diffusion for a time period 'dt'.
@@ -201,23 +223,34 @@ class Tr_L_diff(Component):
 
         L = np.where(
             self._steepest < self._slope_crit,
-            dx / (1 - (self._steepest / self._slope_crit) ** 2),
+            self._transportLengthCoefficient / (1 - (self._steepest / self._slope_crit) ** 2),
             1e9,
         )
 
+        
         qs_out = np.zeros_like(self._el)
         depo = np.zeros_like(self._el)
 
-        # for node in np.flipud(self._stack):
+        
+        
+        stack_flip_ud = np.flipud(self._stack)
+        if self._depositOnBoundaries:
+            stack_flip_ud_sel = stack_flip_ud
+        else:
+            node_status = self.grid.status_at_node
+            stack_flip_ud_sel = stack_flip_ud[
+                (node_status[stack_flip_ud] == NodeStatus.CORE)]
+
+        # C-code
+        non_local_Depo(dx, stack_flip_ud_sel , self._r, qs_out, L, ero, depo)
+        # Non C-Code
+        # for node in stack_flip_ud_sel:
+        #     # L has to be larger than dx
         #     depo[node] = qs_out[node]/L[node]
-        #     qs_out[self._r[node]] = qs_out[node]+ (ero[node] -depo[node])*dx
-
-        non_local_Depo(dx, np.flipud(self._stack), self._r, qs_out, L, ero, depo)
-
-        # Calculate deposition rate on node
-        if not self._depositOnBoundaries:
-            depo[self._grid.boundary_nodes] = 0
-
+        #     qs_out[self._r[node]] += qs_out[node]+ (ero[node]- depo[node])*dx
+        
+        # Update flux
+        self._flux[:] = qs_out*dx # in m3
         # Update elevation
         if self._depthDependent:
             self._soil += (-ero + depo) * dt
