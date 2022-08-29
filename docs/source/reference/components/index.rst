@@ -20,6 +20,7 @@ Hillslope geomorphology
    transport_length_diffusion
    taylor_nonlinear_hillslope_flux
    depth_dependent_taylor_soil_creep
+   threshold_eroder
 
 Fluvial geomorphology
 ---------------------
@@ -32,6 +33,7 @@ Fluvial geomorphology
    erosion_deposition
    space
    network_sediment_transporter
+   gravel_river_transporter
 
 Flow routing
 ------------
@@ -127,14 +129,6 @@ Subaqueous / Submarine Processes
   carbonate
   marine_sediment_transport
 
-Tectonics
----------
-
-.. toctree::
-  :maxdepth: 2
-
-  tectonics
-
 Terrain Analysis
 ----------------
 
@@ -154,12 +148,12 @@ Tectonics
 ---------
 
 .. toctree::
-  :maxdepth: 2
+  :maxdepth: 1
 
   flexure
-  flexure.ext
   gflex
   normal_fault
+  tectonics
 
 Fire
 ----
