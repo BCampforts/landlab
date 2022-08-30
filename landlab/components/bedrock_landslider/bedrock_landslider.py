@@ -27,6 +27,12 @@ class BedrockLandslider(Component):
     Geosci Model Dev: 13(9):3863–86.
     `https://dx.doi.org/10.5194/esurf-6-1-2018 <https://dx.doi.org/10.5194/esurf-6-1-2018>`_
 
+    Campforts, B., Shobe, C. M., Overeem, I., & Tucker, G. E. (2022).
+    The Art of Landslides: How Stochastic Mass Wasting Shapes Topography and
+    Influences Landscape Dynamics.
+    Journal of Geophysical Research: Earth Surface,
+    127(8), 1–16. https://doi.org/10.1029/2022JF006745
+
 
     Examples
     --------
@@ -225,6 +231,7 @@ class BedrockLandslider(Component):
         self,
         grid,
         angle_int_frict=1.0,
+        threshold_slope=None,
         cohesion_eff=1e4,
         landslides_return_time=1e5,
         rho_r=2700,
@@ -236,6 +243,7 @@ class BedrockLandslider(Component):
         verbose_landslides=False,
         landslides_on_boundary_nodes=True,
         critical_sliding_nodes=None,
+        min_deposition_slope=0,
     ):
         """Initialize the BedrockLandslider model.
 
@@ -245,6 +253,9 @@ class BedrockLandslider(Component):
             Landlab ModelGrid object
         angle_int_frict: float, optional
             Materials angle of internal friction in [m/m]
+        threshold_slope: float, optional
+            Threshold slope used in non-linear deposition scheme [m/m]
+            Default value is set to angle_int_frict if not specified
         cohesion_eff : float, optional
             Effective cohesion of material [m L^-1 T^-2].
         landslides_return_time  : float, optional
@@ -293,6 +304,10 @@ class BedrockLandslider(Component):
 
         # Store grid and parameters
         self._angle_int_frict = angle_int_frict
+        if threshold_slope is None:
+            self._threshold_slope = angle_int_frict
+        else:
+            self._threshold_slope = threshold_slope
         self._cohesion_eff = cohesion_eff
         self._rho_r = rho_r
         self._grav = grav
@@ -303,6 +318,7 @@ class BedrockLandslider(Component):
         self._verbose_landslides = verbose_landslides
         self._landslides_on_boundary_nodes = landslides_on_boundary_nodes
         self._critical_sliding_nodes = critical_sliding_nodes
+        self._min_deposition_slope = min_deposition_slope
 
         # Data structures to store properties of simulated landslides.
         self._landslides_size = []
@@ -643,8 +659,8 @@ class BedrockLandslider(Component):
 
         # L following carretier 2016
         transport_length_hill = np.where(
-            slope < self._angle_int_frict,
-            self.grid.dx / (1 - (slope / self._angle_int_frict) ** 2),
+            slope < self._threshold_slope,
+            self.grid.dx / (1 - (slope / self._threshold_slope) ** 2),
             1e6,
         )
 
@@ -652,10 +668,23 @@ class BedrockLandslider(Component):
         dh_hill = np.zeros(topo.shape)
         topo_copy = np.array(topo)
         max_depo = np.zeros(topo.shape)
+        length_adjacent_cells = np.array(
+            [
+                self.grid.dx,
+                self.grid.dx,
+                self.grid.dx,
+                self.grid.dx,
+                self.grid.dx * np.sqrt(2),
+                self.grid.dx * np.sqrt(2),
+                self.grid.dx * np.sqrt(2),
+                self.grid.dx * np.sqrt(2),
+            ]
+        )
 
         _landslide_runout(
             self.grid.dx,
             self._phi,
+            self._min_deposition_slope,
             stack_rev_sel,
             receivers,
             fract_receivers,
@@ -665,6 +694,7 @@ class BedrockLandslider(Component):
             dh_hill,
             topo_copy,
             max_depo,
+            length_adjacent_cells,
         )
         sed_flux[:] = flux_out
 
