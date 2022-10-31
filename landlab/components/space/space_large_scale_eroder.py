@@ -259,6 +259,8 @@ class SpaceLargeScaleEroder(Component):
         discharge_field="surface_water__discharge",
         erode_flooded_nodes=False,
         thickness_lim=100,
+        tools=False,
+        abrasion_coef=5,
     ):
         """Initialize the SpaceLargeScaleEroder model.
 
@@ -399,6 +401,9 @@ class SpaceLargeScaleEroder(Component):
         if F_f < 0.0:
             raise ValueError("Fraction of fines must be > 0.0")
 
+        self._tools = tools
+        self._abrasion_coef = abrasion_coef
+
     @property
     def K_br(self):
         """Erodibility of bedrock(units depend on m_sp)."""
@@ -476,7 +481,21 @@ class SpaceLargeScaleEroder(Component):
         self._br_erosion_term = np.minimum(self._br_erosion_term, br_e_max)
 
         self._Es = self._sed_erosion_term * (1.0 - np.exp(-H / self._H_star))
-        self._Er = self._br_erosion_term * np.exp(-H / self._H_star)
+
+        if self._tools:
+            # W = 5 *  (self.grid.at_node["drainage_area"]/(365*24*3600))**(1/2)
+            W = self.grid.dx
+            tool_ratio = (
+                self._abrasion_coef
+                * self.grid.at_node["sediment__influx"]
+                / (W * self.grid.dx)
+            )
+            tool_ratio[np.isnan(tool_ratio)] = 0
+            tool_ratio = np.maximum(0.1, tool_ratio)
+            print("Max tool ratio %0.2f []" % max(tool_ratio))
+            self._Er = self._br_erosion_term * np.exp(-H / self._H_star) * tool_ratio
+        else:
+            self._Er = self._br_erosion_term * np.exp(-H / self._H_star)
 
         # if the soil layer becomes exceptionally thick (e.g. because of
         # landslide derived sediment deposition(,) the algorithm will become

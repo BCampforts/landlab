@@ -244,6 +244,7 @@ class BedrockLandslider(Component):
         landslides_on_boundary_nodes=True,
         critical_sliding_nodes=None,
         min_deposition_slope=0,
+        sediment_fract_to_bed=0,
     ):
         """Initialize the BedrockLandslider model.
 
@@ -282,6 +283,9 @@ class BedrockLandslider(Component):
             Provide list with critical nodes where landslides have to initiate
             This cancels the stochastic part of the algorithm and allows the
             user to form landslides at the provided critical nodes.
+        sediment_fract_to_bed : float , optional
+            Provide seed to set stochastic model.
+            Fraction of sediment to convert into bedrock
         """
         super(BedrockLandslider, self).__init__(grid)
 
@@ -319,6 +323,7 @@ class BedrockLandslider(Component):
         self._landslides_on_boundary_nodes = landslides_on_boundary_nodes
         self._critical_sliding_nodes = critical_sliding_nodes
         self._min_deposition_slope = min_deposition_slope
+        self._sediment_fract_to_bed = sediment_fract_to_bed
 
         # Data structures to store properties of simulated landslides.
         self._landslides_size = []
@@ -333,6 +338,11 @@ class BedrockLandslider(Component):
         if fraction_fines_LS > 1.0 or fraction_fines_LS < 0.0:
             raise ValueError(
                 f"Fraction of fines must be between 0 and 1 ({fraction_fines_LS})"
+            )
+
+        if sediment_fract_to_bed > 1.0 or sediment_fract_to_bed < 0.0:
+            raise ValueError(
+                f"sediment_fract_to_bed must be between 0 and 1 ({sediment_fract_to_bed})"
             )
 
         # Set seed
@@ -701,7 +711,11 @@ class BedrockLandslider(Component):
         flux_core_nodes = np.sum(flux_in[self.grid.status_at_node == 0])
         volume_leaving = np.sum(flux_in)  # Qs_leaving # in m3 per timestep
 
+        dh_bedrock = self._sediment_fract_to_bed * dh_hill
+        dh_hill -= self._sediment_fract_to_bed * dh_hill
+
         # Change sediment layer
+        bed[:] += dh_bedrock * (1 - self._phi)
         soil_d[:] += dh_hill
         topo[:] = bed + soil_d
 
