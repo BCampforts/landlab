@@ -135,6 +135,7 @@ def _sequential_ero_depo_lateral(np.ndarray[DTYPE_INT_t, ndim=1] stack_flip_ud_s
                     qs_in[flow_receivers[node_id]] += - (petlat_br * dx * wd[node_id])
                     qs_in[flow_receivers[node_id]] += - (petlat_sed * dx * wd[node_id]) * (1-phi)
                     vol_lat[lat_node]+= vol_lat_dt[lat_node] * dt
+
         # ----- ORIGINAL SPACE LARGE SCALE ERODER -------
         qs_out = (qs_in[node_id] +
                   Es[node_id]*cell_area[node_id] +
