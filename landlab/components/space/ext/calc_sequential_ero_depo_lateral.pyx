@@ -12,6 +12,9 @@ ctypedef np.double_t DTYPE_FLOAT_t
 DTYPE_INT = int
 ctypedef np.int_t DTYPE_INT_t
 
+DTYPE_LONG = long
+ctypedef np.long_t DTYPE_LONG_t
+
 DTYPE_UINT8 = np.uint8
 ctypedef np.uint8_t DTYPE_UINT8_t
 
@@ -465,7 +468,8 @@ def _node_finder(
     cdef signed int lat_node
     cdef double inv_rad_curv, angle_diff
     cdef tuple inflow
-    cdef np.ndarray[DTYPE_INT_t, ndim=1] maxinfl, link_list,neighbors,diag_neigh
+    cdef link_list,neighbors,diag_neigh
+    cdef np.ndarray[DTYPE_LONG_t, ndim=1] maxinfl,
 
 
     # receiver node of flow is flowdirs[i]
