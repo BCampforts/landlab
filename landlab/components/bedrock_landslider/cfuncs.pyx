@@ -2,8 +2,8 @@ cimport numpy as np
 cimport cython
 import numpy as np
 
-DTYPE_INT = np.int
-ctypedef np.int_t DTYPE_INT_t
+DTYPE_INT = int
+ctypedef np.int64_t DTYPE_INT_t
 
 DTYPE_FLOAT = np.float64
 ctypedef np.float64_t DTYPE_FLOAT_t
