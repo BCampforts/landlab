@@ -77,6 +77,7 @@ from .tectonics import ListricKinematicExtender
 from .threshold_eroder import ThresholdEroder
 from .tidal_flow import TidalFlowCalculator
 from .transport_length_diffusion import TransportLengthHillslopeDiffuser
+from .transport_length_diffusion import Tr_L_diff
 from .uniform_precip import PrecipitationDistribution
 from .vegetation_dynamics import Vegetation
 from .weathering import ExponentialWeatherer, ExponentialWeathererIntegrated
@@ -160,6 +161,7 @@ COMPONENTS = [
     TaylorNonLinearDiffuser,
     TidalFlowCalculator,
     TransportLengthHillslopeDiffuser,
+    Tr_L_diff,	
     TrickleDownProfiler,
     ThresholdEroder,
     VegCA,
