@@ -246,6 +246,7 @@ class BedrockLandslider(Component):
         landslides_on_boundary_nodes=True,
         critical_sliding_nodes=None,
         min_deposition_slope=0,
+        dt_option= 'JGR',      
     ):
         """Initialize the BedrockLandslider model.
 
@@ -283,7 +284,9 @@ class BedrockLandslider(Component):
         critical_sliding_nodes : list, optional
             Provide list with critical nodes where landslides have to initiate
             This cancels the stochastic part of the algorithm and allows the
-            user to form landslides at the provided critical nodes.
+            user to form landslides at the provided critical nodes.        
+        dt_option= 'GMD' or 'JGR' (Default): 
+            Decide how dt is being calculated
         """
         super().__init__(grid)
 
@@ -340,6 +343,12 @@ class BedrockLandslider(Component):
         # Set seed
         if seed is not None:
             np.random.seed(seed)
+         
+        self.dt_option = dt_option
+        if dt_option != 'GMD' and dt_option !='JGR':
+            raise ValueError(
+                f"dt option should be GMD or JGR ({dt_option})"
+            )
 
     # Getters for properties
     @property
@@ -455,18 +464,26 @@ class BedrockLandslider(Component):
             spatial_prob[np.arctan(steepest_slope) <= angle_int_frict_radians] = 0
             spatial_prob[spatial_prob > 1] = 1
 
-            # Temporal probability
-            temporal_prob = 1 - np.exp(-dt / self._landslides_return_time)
 
-            # Combined probability
-            combined_prob = temporal_prob * spatial_prob
-            sliding = np.random.rand(combined_prob.size) < combined_prob
-
-            # Now, find the critical node, which is the receiver of critical_landslide_nodes
-            # Critical nodes must be unique (a given node can have more receivers...)
-            critical_landslide_nodes = np.unique(
-                self.grid.at_node["flow__receiver_node"][np.where(sliding)]
-            )
+            
+            if self.dt_option == 'GMD':
+                sliding = np.random.rand(spatial_prob.size) < spatial_prob
+                # Now, find the critical node, which is the receiver of critical_landslide_nodes
+                # Critical nodes must be unique (a given node can have more receivers...)
+                critical_landslide_nodes = np.unique(
+                    self.grid.at_node["flow__receiver_node"][np.where(sliding)]
+                )
+                critical_landslide_nodes = np.random.choice(critical_landslide_nodes, int(spatial_prob.size*dt/self._landslides_return_time))  
+                
+            elif self.dt_option == 'JGR':
+                temporal_prob = 1 - np.exp(-dt / self._landslides_return_time)# Combined probability
+                combined_prob = temporal_prob * spatial_prob
+                sliding = np.random.rand(combined_prob.size) < combined_prob 
+                # Now, find the critical node, which is the receiver of critical_landslide_nodes
+                # Critical nodes must be unique (a given node can have more receivers...)
+                critical_landslide_nodes = np.unique(
+                    self.grid.at_node["flow__receiver_node"][np.where(sliding)]
+                )
             # Remove boundary nodes
             if not self._landslides_on_boundary_nodes:
                 critical_landslide_nodes = critical_landslide_nodes[
